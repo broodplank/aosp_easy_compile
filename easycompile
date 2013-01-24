@@ -1,0 +1,698 @@
+#!/bin/bash
+#Store current dir for later use
+SCRIPTDIR=${PWD}
+
+clear
+echo "----------------------------------------"
+echo "- AOSP Easy Compiler BETA              -"
+echo "- by broodplank1337 @ XDA              -"
+echo "- www.broodplank.net                   -" 
+echo "----------------------------------------"
+echo " "
+echo "This tool allows you to compile AOSP apps for an unsupported AOSP device"
+busybox sleep 1
+echo "It uses the intermediates of the already built CyanogenMod build."
+busybox sleep 1
+echo " "
+echo "This script should be executed from the CM environment root dir"
+echo "It does not require root permissions. avoid 'make clean'!"
+echo " "
+echo "WARNING:"
+busybox sleep 1
+echo "This script can only be used properly if CyanogenMod is currently fully compiled"
+echo " "
+echo " "
+read -p "Press [Enter] to continue"
+clear
+
+
+ShowMenu () {
+	clear	
+	echo "----------------------------------------"
+	echo "- AOSP Easy Compiler BETA              -"
+	echo "- www.broodplank.net                   -"
+	echo "- Main Menu                            -"
+	echo "----------------------------------------"
+	echo " "
+	echo "Please make your choice:"
+	echo " "
+    echo " [1] Install required packages"
+	echo " [2] Download CM Environment" 
+	echo " [3] Download AOSP Apps" 
+	echo " [4] Complete environment setup (1, 2 and 3)"
+	echo " "
+	echo " [5] Switch between CM and AOSP apps"
+	echo " [6] Prepare compiler cache"
+	echo " [7] Compile AOSP Apps"
+	echo " [8] Complete 'laming' process (5, 6 and 7)"
+	echo " "
+	echo " [9] Help" 
+	echo " [x] Exit"
+    echo " "
+
+	
+}
+
+while [ 1 ]
+do
+		ShowMenu
+		read CHOICE
+	case "$CHOICE" in
+		"1")
+		clear
+		echo " "
+		echo " Installing required packages"
+		echo " "
+		sudo apt-get install git-core gnupg flex bison python gperf build-essential zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libreadline6 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib gcc-multilib mingw32 openjdk-6-jdk tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 dos2unix gedit
+		sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.
+		busybox sleep 1
+		echo " "
+		echo " Installing required packages done!"
+		echo " "
+		busybox sleep 1 
+		clear
+		;;
+	"2")
+		busybox sleep 1
+		clear
+		echo "---> Please choose a CM to download."
+		echo "       [1]: CM7  for GB"
+		echo "       [2]: CM9 for ICS"
+		echo "       [3]: CM10 for JB"
+		echo " Or enter nothing to skip"
+		echo " "
+		echo "Choose CM Version:"
+		read CMVERSION
+		echo " "
+		echo " "
+		busybox sleep 1
+		if [ -e ~/bin/repo ]; then
+		 echo " "
+		else
+		 sudo apt-get -y install curl
+		 mkdir ~/bin 
+		 curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+		 chmod a+x ~/bin/repo
+		fi;
+		
+		
+		 if [[ "$CMVERSION" == "" ]]; then
+			busybox sleep 1 
+			clear
+			echo " "
+			echo " Skipping Download! "
+			echo " "
+			busybox sleep 1 
+			clear
+			fi;
+		
+		 if [[ "$CMVERSION" == "1" ]]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b gingerbread
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM7 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+
+		if [[ "$CMVERSION" == "2" ]]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b ics
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM9 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+
+		if [[ "$CMVERSION" == "3" ]]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b jellybean
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM10 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+			;;
+			"3")
+			clear
+			echo " "
+			echo "---> Please choose AOSP tag..."
+			echo "       [1]: 'android-2.3.7_r1' - GB"
+			echo "       [2]: 'android-4.0.4_r2.1' - ICS"
+			echo "       [3]: 'android-4.1.2_r1' - JB"
+			echo " or enter nothing to skip download"
+			echo " "
+			echo " "
+			echo "Choose AOSP Tag:"
+			read AOSPTAG
+			echo " "
+			echo " "
+			if [ -e ~/bin/repo ]; then
+			 echo " "
+			else
+			 sudo apt-get -y install curl
+			 mkdir ~/bin 
+			 curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+			 chmod a+x ~/bin/repo
+			fi;
+
+			 if [ -d ${PWD}/aosp ]; then
+			  echo " "
+			 else
+			  mkdir ${PWD}/aosp
+			 fi
+
+			if [[ "$AOSPTAG" == "" ]]; then
+			busybox sleep 1 
+			clear
+			echo " "
+			echo " Skipping Download! "
+			echo " "
+			busybox sleep 1
+			clear
+			fi;
+
+			if [[ "$AOSPTAG" == "1" ]]; then
+			cd aosp 
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-2.3.7_r1
+			 cp -f ${SCRIPTDIR}/repo/gbmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8 
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi;
+
+			if [[ "$AOSPTAG" == "2" ]]; then
+			 cd aosp
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-4.0.4_r2.1
+			 cp -f ${SCRIPTDIR}/repo/icsmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8 
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi;
+
+			if [[ "$AOSPTAG" == "3" ]]; then
+			cd aosp
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-4.1.2_r1
+			 cp -f ${SCRIPTDIR}/repo/jbmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi;
+				;;
+			"4")
+			clear
+			echo " "
+			echo " Installing required packages"
+			echo " "
+			sudo apt-get -y install git-core gnupg flex bison python gperf build-essential zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libreadline6 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib gcc-multilib mingw32 openjdk-6-jdk tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386 dos2unix gedit
+			sudo ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.
+			busybox sleep 1
+			echo " "
+			echo " Installing required packages done!"
+			echo " "
+	
+	
+			busybox sleep 1
+			clear
+			echo "---> Please choose a CM to download."
+			echo "       [1]: CM7  for GB"
+			echo "       [2]: CM9 for ICS"
+			echo "       [3]: CM10 for JB"
+			echo " Or enter nothing to skip"
+			echo " "
+			echo "Choose CM Version:"
+			read CMVERSION
+			echo " "
+			echo "Chosen CM Version: ${CMVERSION}"
+			echo " "
+			if [ -e ~/bin/repo ]; then
+			 echo " "
+			else
+			 sudo apt-get -y install curl
+			 mkdir ~/bin 
+			 curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+			 chmod a+x ~/bin/repo
+			fi;
+		
+	 if [ "$CMVERSION" == "" ]; then
+			busybox sleep 1 
+			clear
+			echo " "
+			echo " Skipping Download! "
+			echo " "
+			busybox sleep 1 
+			clear		
+		
+		 if [ "$CMVERSION" == "1" ]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b gingerbread
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM7 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+
+		if [[ "$CMVERSION" == "2" ]]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b ics
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM9 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+
+		if [[ "$CMVERSION" == "3" ]]; then
+			clear
+			repo init -u https://github.com/CyanogenMod/android.git -b jellybean
+			repo sync -j8
+			clear
+			echo " "
+			echo "Downloading CM10 Finished"
+			echo " "
+			busybox sleep 2
+			clear
+			fi;
+			
+			echo " "
+			echo "---> Please choose AOSP tag..."
+			echo "       [1]: 'android-2.3.7_r1' - GB"
+			echo "       [2]: 'android-4.0.4_r2.1' - ICS"
+			echo "       [3]: 'android-4.1.2_r1' - JB"
+			echo " or enter nothing to skip download"
+			echo " "
+			echo " "
+			echo "Choose AOSP Tag:"
+			read AOSPTAG
+			echo " "
+			echo " "
+			if [ -e ~/bin/repo ]; then
+			 echo " "
+			else
+			 sudo apt-get -y install curl
+			 mkdir ~/bin 
+			 curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+			 chmod a+x ~/bin/repo
+			fi;
+
+			if [[ "$AOSPTAG" == "" ]]; then
+			busybox sleep 1 
+			clear
+			echo " "
+			echo " Skipping Download! "
+			echo " "
+			busybox sleep 1 
+			clear
+			fi;
+
+			if [[ "$AOSPTAG" == "1" ]]; then
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-2.3.7_r1
+			 cp -f ${SCRIPTDIR}/repo/gbmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi;
+
+			if [[ "$AOSPTAG" == "2" ]]; then
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-4.0.4_r2.1
+			 cp -f ${SCRIPTDIR}/repo/icsmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi;
+
+			if [[ "$AOSPTAG" == "3" ]]; then
+			 repo init -u https://android.googlesource.com/platform/manifest -b android-4.1.2_r1
+		     cp -f ${SCRIPTDIR}/repo/jbmanifest.xml ${SCRIPTDIR}/aosp/.repo/manifests/default.xml
+			 repo sync -j8
+			 clear
+			 echo " "
+			 echo "Downloading AOSP apps finished!"
+			 echo " "
+			 busybox sleep 2
+			 clear
+			fi
+			fi
+			;;
+		
+			"5")
+			clear
+			echo " "
+			echo "---> Switch between apps"
+			echo " "
+			echo " [1]: Activate AOSP apps in environment" 
+			echo " [2]: Active CM apps in environment" 
+			echo " "
+			echo "Switch Choice:"
+			read SWITCH
+			echo " "
+			
+			if [[ "$SWITCH" == "1" ]]; then
+			echo " "
+			echo "---> Ready to transfer AOSP apps to CM Installation..."
+			echo "         The CM apps will be moved for the meanwhile"
+			echo " "
+			read -p "Press [Enter] key to continue..."
+			echo " "
+			echo "Moving CM apps to temp dir"
+			if [[ -d aosp/cmtemp ]]; then
+			 echo ""
+			else 
+			 mkdir aosp/cmtemp
+			fi; 
+			mv -f packages/* aosp/cmtemp/
+			echo "Moving AOSP apps to CM dir"
+			mv -f aosp/packages/* packages/
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+			
+			if [[ "$SWITCH" == "2" ]]; then
+			echo " "
+			echo "---> Ready to transfer CM apps to CM Installation..."
+			echo "         The AOSP apps will be moved back to the aosp folder"
+			echo " "
+			read -p "Press [Enter] key to move the AOSP and CM apps again"
+			echo "Moving AOSP apps to CM dir"
+			mv -f packages/* aosp/packages/
+			echo "Moving CM apps to CM dir"
+			mv -f aosp/cmtemp/* packages/
+			echo "Done!"
+			fi;
+			;;
+			
+			"6")
+			clear
+			echo " "
+			echo "---> Please enter your device name..."
+			echo "         device example: ariesve or ancora"
+			echo " "
+			echo " device name must be entered in lower case!"   
+			echo " "
+			busybox sleep 1
+			echo " "
+			echo "Enter device name:"
+			read DEVICENAME
+			echo " "
+			echo "Chosen device name: ${DEVICENAME}"
+			echo "Out dir: ${PWD}/out/target/product/${DEVICENAME}"
+			busybox sleep 2
+			clear
+			
+			echo " "
+			echo "---> Ready to manipulate previous compiler cache..."
+			echo " "
+			echo "---> Choose intensity of cache cleaning"
+			echo " "
+			echo " [1]: Normal, kill dex only (recommended)" 
+			echo " [2]: Drastic, kill all common intermediates " 
+			echo " [3]: Extreme, kill all common and device intermediates"
+			echo " "
+			echo "Choice:"
+			read LEVEL
+
+			if [[ "$LEVEL" == "1" ]]; then
+			echo " "
+			echo "Normal cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/obj/APPS
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/system/app"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/system/app
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+
+			if [[ "$LEVEL" == "2" ]]; then
+			echo " "
+			echo "Drastic cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/common/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/common/obj/APPS
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+
+			if [[ "$LEVEL" == "3" ]]; then
+			echo " "
+			echo "Extreme cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/obj/APPS
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/system/app"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/system/app
+			echo "Deleting: ${PWD}/out/target/product/common/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/common/obj/APPS
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+
+		
+			;;
+			
+			"7")
+			clear
+			echo " "
+			echo "---> Please enter your device name..."
+			echo "         device example: ariesve or ancora"
+			echo " "
+			echo " device name must be entered in lower case!"   
+			echo " "
+			busybox sleep 1
+			echo " "
+			echo "Enter device name:"
+			read DEVICENAME
+			echo " "
+			echo "Chosen device name: ${DEVICENAME}"
+			echo "Out dir: ${PWD}/out/target/product/${DEVICENAME}"
+			busybox sleep 2
+			clear
+						
+			echo " "
+			echo "---> Ready to compile AOSP apps..."
+			echo " "
+			read -p "Press [Enter] key to compile the AOSP apps..."
+			echo " "
+			source build/envsetup.sh
+			brunch cm_${DEVICENAME}-userdebug -k -j8
+			clear
+			echo "Compilation Done. checking for aosp apps existance"
+			if [ -d out/target/product/${DEVICENAME}/system/app ]; then
+			 echo "AOSP Apps have been compiled, check contents in: out/target/product/${DEVICENAME}/system/app"
+			else
+			 echo "Something has gone wrong!"
+			fi;
+			;;
+			
+			"8")
+			clear
+		    echo " "
+			echo "---> Switch between apps"
+			echo " "
+			echo " [1]: Activate AOSP apps in environment" 
+			echo " [2]: Active CM apps in environment" 
+			echo " "
+			echo "Switch Choice:"
+			read SWITCH
+			echo " "
+			
+			if [[ "$SWITCH" == "1" ]]; then
+			echo " "
+			echo "---> Ready to transfer AOSP apps to CM Installation..."
+			echo "         The CM apps will be moved for the meanwhile"
+			echo " "
+			read -p "Press [Enter] key to continue..."
+			echo " "
+			echo "Moving CM apps to temp dir"
+			if [[ -d aosp/cmtemp ]]; then
+			 echo ""
+			else 
+			 mkdir aosp/cmtemp
+			fi; 
+			mv -f packages/* aosp/cmtemp/
+			echo "Moving AOSP apps to CM dir"
+			mv -f aosp/packages/* packages/
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+			
+			if [[ "$SWITCH" == "2" ]]; then
+			echo " "
+			echo "---> Ready to transfer CM apps to CM Installation..."
+			echo "         The AOSP apps will be moved back to the aosp folder"
+			echo " "
+			read -p "Press [Enter] key to move the AOSP and CM apps again"
+			echo "Moving AOSP apps to CM dir"
+			mv -f packages/* aosp/packages/
+			echo "Moving CM apps to CM dir"
+			mv -f aosp/cmtemp/* packages/
+			echo "Done!"
+			fi;
+					
+			echo " "
+			echo "---> Ready to manipulate previous compiler cache..."
+			echo " "
+			echo "---> Choose intensity of cache cleaning"
+			echo " "
+			echo " [1]: Normal, kill dex only (recommended)" 
+			echo " [2]: Drastic, kill all common intermediates " 
+			echo " [3]: Extreme, kill all common and device intermediates"
+			echo " "
+			echo "Choice:"
+			read LEVEL
+
+			if [[ "$LEVEL" == "1" ]]; then
+			echo " "
+			echo "Normal cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/obj/APPS
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/system/app"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/system/app
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+
+			if [[ "$LEVEL" == "2" ]]; then
+			echo " "
+			echo "Drastic cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/common/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/common/obj/APPS
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+
+			if [[ "$LEVEL" == "3" ]]; then
+			echo " "
+			echo "Extreme cache cleaning"
+			echo " "
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/obj/APPS
+			echo "Deleting: ${PWD}/out/target/product/${DEVICENAME}/system/app"
+			rm -Rf ${PWD}/out/target/product/${DEVICENAME}/system/app
+			echo "Deleting: ${PWD}/out/target/product/common/obj/APPS"
+			rm -Rf ${PWD}/out/target/product/common/obj/APPS
+			echo "Done!"
+			busybox sleep 2
+			clear
+			fi; 
+		
+			echo " "
+			echo "---> Please enter your device name..."
+			echo "         device example: ariesve or ancora"
+			echo " "
+			echo " device name must be entered in lower case!"   
+			echo " "
+			busybox sleep 1
+			echo " "
+			echo "Enter device name:"
+			read DEVICENAME
+			echo " "
+			echo "Chosen device name: ${DEVICENAME}"
+			echo "Out dir: ${PWD}/out/target/product/${DEVICENAME}"
+			busybox sleep 2
+			clear
+
+			echo " "
+			echo "---> Ready to compile AOSP apps..."
+			echo " "
+			read -p "Press [Enter] key to compile the AOSP apps..."
+			echo " "
+			source build/envsetup.sh
+			brunch cm_${DEVICENAME}-userdebug -k -j8
+			clear
+			echo "Compilation Done. checking for aosp apps existance"
+			if [ -d out/target/product/${DEVICENAME}/system/app ]; then
+			 echo "AOSP Apps have been compiled, check contents in: out/target/product/${DEVICENAME}/system/app"
+			else
+			 echo "Something has gone wrong!"
+			fi;
+			;;
+			
+			"9")
+			clear
+			echo "----------------------------------------"
+			echo "- AOSP Easy Compiler BETA              -"
+			echo "- by broodplank1337 @ XDA              -"
+			echo "- www.broodplank.net                   -" 
+			echo "----------------------------------------"
+			echo "----------------------------------------"
+			echo "- HELP PAGE                            -"
+			echo "----------------------------------------"
+			echo " "
+			echo " Instructions: "
+			echo " 1. Make sure CM7/9/10 is fully working for your device"
+			echo " 2. Install CM environment and add your device spec and vendor spec"
+			echo " 3. Compile CM (. build/envsetup && brunch cm_devicename-userdebug -k -j8)"
+			echo " 4. Download AOSP Apps"
+			echo " 5. Switch CM/AOSP apps"
+			echo " 6. Run compiler cache cleaner"
+			echo " 7. Compile AOSP apps"
+			echo " 8. Result, AOSP apps working with CM framework."
+			echo " 9. Optionally: Switch back CM apps"
+			echo " "
+			echo "Note, keep in mention that AOSP might differ in overlay on some apps"
+			echo "Most common troublemaker: Phone.apk"
+			echo " "
+		    read -p "Press [Enter] to return to the main menu..."
+            clear
+			;;
+			
+			"x")
+			clear
+			echo " "
+			echo " ==========================="
+			busybox sleep 1 
+			echo "  http://www.broodplank.net"
+			busybox sleep 1 
+			echo " ============================"
+			busybox sleep 1
+			echo " "
+			exit
+			exit
+			;;
+			
+			esac
+		done
